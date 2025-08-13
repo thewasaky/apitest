@@ -1,0 +1,94 @@
+<mat-card>
+    <mat-card-title>API Tester</mat-card-title>
+    <mat-card-content>
+            <form>
+                <div style="display: flex; gap: 1em; align-items: center; margin-bottom: 1em;">
+                    <mat-form-field appearance="outline" style="width: 120px; min-width: 100px;">
+                        <mat-label>Método</mat-label>
+                        <mat-select [(value)]="peticion">
+                            <mat-option *ngFor="let m of metodos" [value]="m">{{m}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" style="flex: 1;">
+                        <mat-label>URL</mat-label>
+                        <input matInput [(ngModel)]="url" name="url" required>
+                    </mat-form-field>
+                    <button mat-raised-button color="primary" (click)="enviarPeticion()" [disabled]="!url || (peticion !== 'GET' && !validJSON)">
+                        Enviar
+                    </button>
+                </div>
+
+                        <mat-tab-group>
+                            <mat-tab label="Body">
+                                <mat-form-field appearance="outline" style="width: 200px;">
+                                    <mat-label>Tipo de Body</mat-label>
+                                    <mat-select [(value)]="bodyType">
+                                        <mat-option value="json">JSON</mat-option>
+                                        <mat-option value="formdata">FormData</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+
+                                <div *ngIf="bodyType === 'json'">
+                                    <mat-form-field appearance="outline" style="width: 100%;">
+                                        <mat-label>Body (JSON)</mat-label>
+                                        <textarea matInput [(ngModel)]="body" name="body" (input)="validarJSON()" rows="8"
+                                            [ngStyle]="{'border-color': validJSON ? 'green' : 'red'}"></textarea>
+                                        <mat-hint *ngIf="!validJSON" style="color: red;">JSON inválido</mat-hint>
+                                    </mat-form-field>
+                                    <button mat-stroked-button color="accent" (click)="beautifyBody()" style="margin-bottom:1em;">
+                                        <mat-icon>format_align_left</mat-icon> Beautify
+                                    </button>
+                                </div>
+                                <div *ngIf="bodyType === 'formdata'">
+                                    <div *ngFor="let f of formDataFields; let i = index" style="display:flex; gap:8px; margin-bottom:4px; align-items:center;">
+                                        <mat-form-field appearance="outline" style="flex:1;">
+                                            <mat-label>Clave</mat-label>
+                                            <input matInput [(ngModel)]="f.key" name="formKey{{i}}">
+                                        </mat-form-field>
+                                        <mat-form-field appearance="outline" style="flex:2;" *ngIf="!f.isFile">
+                                            <mat-label>Valor</mat-label>
+                                            <input matInput [(ngModel)]="f.value" name="formValue{{i}}">
+                                        </mat-form-field>
+                                        <input type="file" *ngIf="f.isFile" [disabled]="!f.key" (change)="onFileChange($event, i)" style="flex:2;" />
+                                        <mat-checkbox [(ngModel)]="f.isFile" name="isFile{{i}}">Archivo</mat-checkbox>
+                                        <span *ngIf="f.isFile && !f.key" style="color:red; font-size:0.9em;">Agrega una clave para habilitar el archivo</span>
+                                        <button mat-icon-button color="warn" (click)="removeFormDataField(i)" aria-label="Eliminar campo">
+                                            <mat-icon>delete</mat-icon>
+                                        </button>
+                                    </div>
+                                    <button mat-stroked-button color="primary" (click)="addFormDataField()" type="button">
+                                        <mat-icon>add</mat-icon> Agregar campo
+                                    </button>
+                                </div>
+                            </mat-tab>
+                            <mat-tab label="Headers">
+                                <div style="margin-bottom:1em;">
+                                    <label style="font-weight:bold;">Headers personalizados</label>
+                                    <div *ngFor="let h of headers; let i = index" style="display:flex; gap:8px; margin-bottom:4px;">
+                                        <mat-form-field appearance="outline" style="flex:1;">
+                                            <mat-label>Clave</mat-label>
+                                            <input matInput [(ngModel)]="h.key" name="headerKey{{i}}">
+                                        </mat-form-field>
+                                        <mat-form-field appearance="outline" style="flex:2;">
+                                            <mat-label>Valor</mat-label>
+                                            <input matInput [(ngModel)]="h.value" name="headerValue{{i}}">
+                                        </mat-form-field>
+                                        <button mat-icon-button color="warn" (click)="eliminarHeader(i)" aria-label="Eliminar header">
+                                            <mat-icon>delete</mat-icon>
+                                        </button>
+                                    </div>
+                                    <button mat-stroked-button color="primary" (click)="agregarHeader()" type="button">
+                                        <mat-icon>add</mat-icon> Agregar header
+                                    </button>
+                                </div>
+                            </mat-tab>
+                        </mat-tab-group>
+            </form>
+                <mat-progress-bar *ngIf="cargando" mode="indeterminate"></mat-progress-bar>
+                <mat-card *ngIf="resultado" style="margin-top:2em; width:100%; max-width:none;">
+                    <mat-card-title>Resultado</mat-card-title>
+                    <pre style="background:#222; color:#eee; padding:2em; font-size:1.2em; min-height:300px; max-height:60vh; overflow:auto;">{{resultado}}</pre>
+                </mat-card>
+            </mat-card-content>
+        </mat-card>
+

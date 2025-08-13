@@ -1,0 +1,19 @@
+mat-card {
+  max-width: 1400px;
+  width: 98vw;
+  margin: 2em auto;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+pre {
+  font-family: 'Fira Mono', 'Consolas', monospace;
+  font-size: 1.2em;
+  border-radius: 4px;
+}
+textarea[matInput] {
+  min-height: 100px;
+  font-size: 1.1em;
+}
